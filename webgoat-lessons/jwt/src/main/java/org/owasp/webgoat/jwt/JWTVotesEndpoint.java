@@ -122,9 +122,16 @@ public class JWTVotesEndpoint extends AssignmentEndpoint {
             value.setSerializationView(Views.GuestView.class);
         } else {
             try {
-                Jwt jwt = Jwts.parser().setSigningKey(JWT_PASSWORD).parse(accessToken);
+                
                 Claims claims = (Claims) jwt.getBody();
                 String user = (String) claims.get("user");
+                
+                 // Signing:
+                Jwts.builder().setSubject(user).signWith(SignatureAlgorithm.HS256, JWT_PASSWORD).compact();
+                // Verifying:
+                Jwt jwt = Jwts.parser().setSigningKey(JWT_PASSWORD).parseClaimsJws(accessToken).getBody(); 
+
+                
                 if ("Guest".equals(user) || !validUsers.contains(user)) {
                     value.setSerializationView(Views.GuestView.class);
                 } else {
